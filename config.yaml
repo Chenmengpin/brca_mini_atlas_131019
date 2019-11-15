@@ -7,7 +7,6 @@ samples:
   CID4066: raw_files/seurat_objects/CID4066/03_seurat_object_processed.Rdata
   CID4067: raw_files/seurat_objects/CID4067/03_seurat_object_processed.Rdata
   CID4290A: raw_files/seurat_objects/CID4290A/03_seurat_object_processed.Rdata
-  CID4398: raw_files/seurat_objects/CID4398/03_seurat_object_processed.Rdata
   CID44041: raw_files/seurat_objects/CID44041/03_seurat_object_processed.Rdata
   CID4461: raw_files/seurat_objects/CID4461/03_seurat_object_processed.Rdata
   CID4463: raw_files/seurat_objects/CID4463/03_seurat_object_processed.Rdata
@@ -28,3 +27,4 @@ cancer_x_threshold_sd_multiplier: 2
 cancer_y_threshold_sd_multiplier: 1.5
 normal_x_threshold_sd_multiplier: 1
 normal_y_threshold_sd_multiplier: 1.25
+include_group_annotation: FALSE

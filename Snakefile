@@ -8,17 +8,14 @@ R_dir = "/share/ClusterShare/software/contrib/CTP_single_cell/tools/R_developers
 rule all:
     input:
         expand(
-            "results/infercnv/t_cells_included/{sample}/" +
-            "threshold_sd_multipliers_{cancer_x_threshold_sd_multiplier}_" +
-            "{cancer_y_threshold_sd_multiplier}_" +
-            "{normal_x_threshold_sd_multiplier}_" +
-            "{normal_y_threshold_sd_multiplier}/" +
-            "plots/CNA_density_plot.png",
+            "results/sup_figure/t_cells_included/{sample}/"
+            "plots/infercnv_plot.png",
             sample=config["samples"],
             cancer_x_threshold_sd_multiplier=config["cancer_x_threshold_sd_multiplier"],
             cancer_y_threshold_sd_multiplier=config["cancer_y_threshold_sd_multiplier"],
             normal_x_threshold_sd_multiplier=config["normal_x_threshold_sd_multiplier"],
-            normal_y_threshold_sd_multiplier=config["normal_y_threshold_sd_multiplier"]
+            normal_y_threshold_sd_multiplier=config["normal_y_threshold_sd_multiplier"],
+            include_group_annotation=config["include_group_annotation"]
         )
 
 rule infercnv:
@@ -27,7 +24,7 @@ rule infercnv:
             "03_seurat_object_processed.Rdata"
     output:
         final_observations = protected(
-            "results/infercnv/t_cells_included/{sample}/" +
+            "results/sup_figure/t_cells_included/{sample}/" +
             "infercnv.12_denoised.observations.txt"
         )
     params:
@@ -43,33 +40,23 @@ rule infercnv:
 
 rule individual_plot:
     input:
-        "results/infercnv/t_cells_included/{sample}/" +
+        "results/sup_figure/t_cells_included/{sample}/" +
         "infercnv.12_denoised.observations.txt"
     output:
-        infercnv_plot = "results/infercnv/t_cells_included/{sample}/" +
-            "threshold_sd_multipliers_{cancer_x_threshold_sd_multiplier}_" +
-            "{cancer_y_threshold_sd_multiplier}_" +
-            "{normal_x_threshold_sd_multiplier}_" +
-            "{normal_y_threshold_sd_multiplier}/" +
+        infercnv_plot = "results/sup_figure/t_cells_included/{sample}/" +
             "plots/CNA_density_plot.png",
-        density_plot = "results/infercnv/t_cells_included/{sample}/" +
-            "threshold_sd_multipliers_{cancer_x_threshold_sd_multiplier}_" +
-            "{cancer_y_threshold_sd_multiplier}_" +
-            "{normal_x_threshold_sd_multiplier}_" +
-            "{normal_y_threshold_sd_multiplier}/" +
+        density_plot = "results/sup_figure/t_cells_included/{sample}/" +
             "plots/infercnv_plot.png",
-        quad_plot = "results/infercnv/t_cells_included/{sample}/" +
-            "threshold_sd_multipliers_{cancer_x_threshold_sd_multiplier}_" +
-            "{cancer_y_threshold_sd_multiplier}_" +
-            "{normal_x_threshold_sd_multiplier}_" +
-            "{normal_y_threshold_sd_multiplier}/" +
+        quad_plot = "results/sup_figure/t_cells_included/{sample}/" +
             "plots/normal_call_quad_plot_mean_of_scaled_squares.png",
     params:
         include_t_cells=config["include_t_cells"],
         cancer_x_threshold_sd_multiplier=config["cancer_x_threshold_sd_multiplier"],
         cancer_y_threshold_sd_multiplier=config["cancer_y_threshold_sd_multiplier"],
         normal_x_threshold_sd_multiplier=config["normal_x_threshold_sd_multiplier"],
-        normal_y_threshold_sd_multiplier=config["normal_y_threshold_sd_multiplier"]
+        normal_y_threshold_sd_multiplier=config["normal_y_threshold_sd_multiplier"],
+        include_group_annotation=config["include_group_annotation"]
+
     threads: 6
     shell:
         "cd logs/{wildcards.sample}/; " +
@@ -78,4 +65,6 @@ rule individual_plot:
         "{params.cancer_x_threshold_sd_multiplier} " +
         "{params.cancer_y_threshold_sd_multiplier} " +
         "{params.normal_x_threshold_sd_multiplier} " +
-        "{params.normal_y_threshold_sd_multiplier}' ../../scripts/2.plot_individual_heatmap.R"
+        "{params.normal_y_threshold_sd_multiplier} " +
+        "{params.include_group_annotation} " +
+        "' ../../scripts/2.plot_individual_heatmap.R"
