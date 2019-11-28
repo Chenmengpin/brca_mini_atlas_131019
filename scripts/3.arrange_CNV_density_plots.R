@@ -3,25 +3,20 @@
 #### Arrange CNV heatmaps with samples, arrays, annotations and chromosomes
 # labelled, 12 per page ####
 
-Rstudio <- TRUE
+Rstudio <- FALSE
 
 project_name <- "identify_epithelial"
 subproject_name <- "brca_mini_atlas_131019"
 include_t_cells <- TRUE
 
 # state samples with matched arrays and subsets in order:
-array_samples <- c("CID4463", "CID3921", "CID4066", "CID3963", "CID44991",
+array_samples <- c("CID4463", "CID3921", "CID4066", "CID44991",
                    "CID4515", "CID4513", "CID4523")
-luminal <- c("CID3941", "CID3948", "CID4067", "CID4290A", "CID4461",
-             "CID4465", "CID4471", "CID4530N", "CID4535")
-HER2 <- c("CID3586", "CID45171")
-TNBC <- c("CID44041", "CID4495", "CID44971", "CID4515")
+luminal <- c("CID4290A",
+             "CID4471", "CID4530N", "CID4535")
+HER2 <- c("CID45171")
+TNBC <- c("CID4495", "CID44971", "CID4515")
 sample_names <- c(array_samples, luminal, HER2, TNBC)
-sample_names_1 <- sample_names[1:18]
-sample_names_2 <- sample_names[19:22]
-
-# array_samples <- c("CID4066")
-# sample_names <- array_samples
 
 print(paste0("Subproject name = ", subproject_name))
 
@@ -56,16 +51,16 @@ print(paste0("In path = ", in_path))
 ### 1. Load heatmap images for each sample as list of rasterGrobs ###
 ################################################################################
 
-for (s in 1:length(sample_names_1)) {
+for (s in 1:length(sample_names)) {
   
-  print(paste0("Loading ", sample_names_1[s], " heatmap png..."))
-  in_dir <- paste0(in_path, "/", sample_names_1[s], "/plots/")
+  print(paste0("Loading ", sample_names[s], " density plot png..."))
+  in_dir <- paste0(in_path, "/", sample_names[s], "/plots/")
   
   if (s==1) {
-    heatmap_images_1 <- list(
+    heatmap_images <- list(
       rasterGrob(
         readPNG(
-          paste0(in_dir, "infercnv_plot.png")
+          paste0(in_dir, "average_CNV_density_plot.png")
         ),
         width = 1,
         height = unit(5, "cm")
@@ -74,51 +69,18 @@ for (s in 1:length(sample_names_1)) {
     
   } else {
     
-    heatmap_images_1 <- list.append(
-      heatmap_images_1,
+    heatmap_images <- list.append(
+      heatmap_images,
       rasterGrob(
         readPNG(
-          paste0(in_dir, "infercnv_plot.png")
+          paste0(in_dir, "average_CNV_density_plot.png")
         ),
         width = 1,
         height = unit(5, "cm")
       )
     )
   }
-  names(heatmap_images_1)[s] <- sample_names_1[s]
-  
-}
-
-for (s in 1:length(sample_names_2)) {
-  
-  print(paste0("Loading ", sample_names_2[s], " heatmap png..."))
-  in_dir <- paste0(in_path, "/", sample_names_2[s], "/plots/")
-  
-  if (s==1) {
-    heatmap_images_2 <- list(
-      rasterGrob(
-        readPNG(
-          paste0(in_dir, "infercnv_plot.png")
-        ),
-        width = 1,
-        height = unit(5, "cm")
-      )
-    )
-    
-  } else {
-    
-    heatmap_images_2 <- list.append(
-      heatmap_images_2,
-      rasterGrob(
-        readPNG(
-          paste0(in_dir, "infercnv_plot.png")
-        ),
-        width = 1,
-        height = unit(5, "cm")
-      )
-    )
-  }
-  names(heatmap_images_2)[s] <- sample_names_2[s]
+  names(heatmap_images)[s] <- sample_names[s]
   
 }
 
@@ -128,12 +90,8 @@ for (s in 1:length(sample_names_2)) {
 ################################################################################
 
 
-pdf(paste0(in_path, "combined_figure_1.pdf"), height = 11.69, width = 8.27)
-  do.call("grid.arrange", c(heatmap_images_1, ncol=3))
-dev.off()
-
-pdf(paste0(in_path, "combined_figure_2.pdf"), height = 11.69, width = 8.27)
-  do.call("grid.arrange", c(heatmap_images_2, ncol=3))
+pdf(paste0(in_path, "combined_CNV_density_plots.pdf"), height = 11.69, width = 8.27)
+  do.call("grid.arrange", c(heatmap_images, ncol=3))
 dev.off()
 
 #convert pdf to png:

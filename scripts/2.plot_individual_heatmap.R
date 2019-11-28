@@ -20,7 +20,7 @@ normal_y_threshold_sd_multiplier <- as.numeric(args[6])
 include_group_annotation <- as.logical(args[7])
 print(include_group_annotation)
 
-#sample_name <- "CID4066"
+#sample_name <- "CID4495"
 #include_t_cells <- TRUE
 #cancer_x_threshold_sd_multiplier <- 2
 #cancer_y_threshold_sd_multiplier <- 1.5
@@ -252,6 +252,17 @@ if (!file.exists(paste0(Robject_dir,
 ### 3. Add CNA and correlation value metadata ###
 ################################################################################
 
+# create and check normality from density plots for average CNV vector:
+CNV_average <- apply(epithelial_heatmap, 2, mean)
+
+CNV_density_plot <- density(CNV_average, bw="SJ")
+pdf(paste0(plot_dir, "average_CNV_density_plot.pdf"))
+  plot(CNV_density_plot, main=NA, xlab = "CNV values")
+dev.off()
+png(paste0(plot_dir, "average_CNV_density_plot.png"))
+  plot(CNV_density_plot, main=NA, xlab = "CNV values")
+dev.off()
+
 if (!file.exists(paste0(Robject_dir, 
   "3b.epithelial_metadata_with_cell_type_QC_CNA_and_correlation_values.Rdata"))) {
   
@@ -354,9 +365,12 @@ if (
     "metadata df..."
   ))
   # create density plot of infercnv values:
-  density_plot <- density(epithelial_metadata$CNA_value, bw="SJ")
+  CNA_density_plot <- density(epithelial_metadata$CNA_value, bw="SJ")
   pdf(paste0(plot_dir, "CNA_density_plot.pdf"))
-    plot(density_plot, main=NA, xlab = "CNA value")
+    plot(CNA_density_plot, main=NA, xlab = "CNA value")
+  dev.off()
+  png(paste0(plot_dir, "CNA_density_plot.png"))
+    plot(CNA_density_plot, main=NA, xlab = "CNA value")
   dev.off()
 
   # prepare df for quad plots:
@@ -450,6 +464,10 @@ if (
       "normal_call_quad_plot_mean_of_scaled_squares.png"), 
       width = 450, height = 270)
       print(p)
+    dev.off()
+    p
+    ggsave(paste0(plot_dir, "normal_call_quad_plot_mean_of_scaled_squares.pdf"),
+      width = 18, height = 13, units = c("cm"))
     dev.off()
 
 
@@ -850,7 +868,7 @@ longest_cluster_name <- max(nchar(unique(as.character(epithelial_metadata$cell_t
 x_coord <- longest_cluster_name*0.0037
 
 # plot final annotated heatmap:
-pdf(paste0(plot_dir, "infercnv_plot.pdf"), 
+pdf(paste0(plot_dir, "infercnv_plot_non_rounded_cor_p_values.pdf"), 
 	height = 13, width = 20) 
 
   grid.newpage()
@@ -880,7 +898,7 @@ pdf(paste0(plot_dir, "infercnv_plot.pdf"),
         just = "left"))
         grid.text(
           paste0(
-          	"pearson = ", round(pearson_result$cor_pearson.estimate, 3)
+          	"pearson = ", pearson_result$cor_pearson.estimate
           ), gp = gpar(fontsize=30)
         )
       popViewport()
@@ -888,7 +906,7 @@ pdf(paste0(plot_dir, "infercnv_plot.pdf"),
         just = "left"))
         grid.text(
           paste0(
-          	"p = ", round(pearson_result$cor_pearson.p.value, 4)
+          	"p = ", pearson_result$cor_pearson.p.value
           ), gp = gpar(fontsize=30)
         )
       popViewport()
@@ -914,6 +932,31 @@ pdf(paste0(plot_dir, "infercnv_plot.pdf"),
     
 dev.off()
 
+# plot final annotated heatmap:
+pdf(paste0(plot_dir, "infercnv_plot.pdf"), 
+  height = 13, width = 20) 
+
+  grid.newpage()
+  pushViewport(viewport(x = 0.155, y = 0.065, width = 0.752, height = 0.78, 
+    just = c("left", "bottom")))
+      grid.draw(annotated_heatmap)
+      decorate_heatmap_body("hm", {
+        for ( e in 1:length(chr_data$end_pos) ) {
+        grid.lines(c(chr_data$end_pos[e], chr_data$end_pos[e]), c(0, 1), 
+          gp = gpar(lwd = 1, col = "#383838"))
+        }
+      })
+    popViewport()
+
+    if (exists("grid_array_heatmap")) {
+      pushViewport(viewport(x = x_coord + 0.7755, y = 0.86, 
+      width = 0.673, height = 0.13, just = c("right", "bottom")))
+        grid.draw(grid_array_heatmap)
+      popViewport()
+
+    }
+    
+dev.off()
 
 print(paste0("Heatmap created, output in ", plot_dir))
 

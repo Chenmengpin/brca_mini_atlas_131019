@@ -1,4 +1,4 @@
-# snakemake --reason --cores 7 --cluster "qsub -pe smp 7 -N smk.infercnv -b y -j y -V -P TumourProgression" -j 23
+# snakemake --reason --cores 50 --cluster "qsub -pe smp 7 -N smk.infercnv -b y -j y -V -P TumourProgression" -j 23
 
 configfile: "config.yaml"
 
@@ -9,7 +9,7 @@ rule all:
     input:
         expand(
             "results/sup_figure/t_cells_included/{sample}/"
-            "plots/infercnv_plot.png",
+            "plots/infercnv_plot_non_rounded_cor_p_values.png",
             sample=config["samples"],
             cancer_x_threshold_sd_multiplier=config["cancer_x_threshold_sd_multiplier"],
             cancer_y_threshold_sd_multiplier=config["cancer_y_threshold_sd_multiplier"],
@@ -43,12 +43,15 @@ rule individual_plot:
         "results/sup_figure/t_cells_included/{sample}/" +
         "infercnv.12_denoised.observations.txt"
     output:
-        infercnv_plot = "results/sup_figure/t_cells_included/{sample}/" +
+        CNV_density_plot = "results/sup_figure/t_cells_included/{sample}/" +
+            "plots/average_CNV_density_plot.png",
+        CNA_density_plot = "results/sup_figure/t_cells_included/{sample}/" +
             "plots/CNA_density_plot.png",
-        density_plot = "results/sup_figure/t_cells_included/{sample}/" +
-            "plots/infercnv_plot.png",
+        infercnv_plot = "results/sup_figure/t_cells_included/{sample}/" +
+            "plots/infercnv_plot_non_rounded_cor_p_values.png",
         quad_plot = "results/sup_figure/t_cells_included/{sample}/" +
-            "plots/normal_call_quad_plot_mean_of_scaled_squares.png",
+            "plots/normal_call_quad_plot_mean_of_scaled_squares.png"
+
     params:
         include_t_cells=config["include_t_cells"],
         cancer_x_threshold_sd_multiplier=config["cancer_x_threshold_sd_multiplier"],
